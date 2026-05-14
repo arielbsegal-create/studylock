@@ -50,7 +50,6 @@ function handleFinish() {
     updateUI(); saveData(); updateTimerDisplay();
 }
 
-// EVENTS
 document.getElementById("loginBtn").onclick = () => {
     username = document.getElementById("usernameInput").value;
     if (!username) return;
@@ -76,7 +75,6 @@ document.getElementById("battleBtn").onclick = () => { battleActive = true; batt
 document.getElementById("openShopBtn").onclick = () => document.getElementById("shopPage").classList.remove("hidden");
 document.getElementById("backBtn").onclick = () => document.getElementById("shopPage").classList.add("hidden");
 
-// SHOP
 document.getElementById("buyThemeBtn").onclick = () => {
     if (unlockedThemes.includes("neon")) {
         activeTheme = activeTheme === "neon" ? "default" : "neon";
