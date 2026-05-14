@@ -13,91 +13,87 @@
 body {
     width: 100vw; height: 100vh; overflow: hidden;
     background: #05070a; font-family: 'Rajdhani', sans-serif; color: white;
+    display: flex; justify-content: center; align-items: center;
 }
 
-/* --- NEON BUTTON OVERHAUL --- */
+canvas { position: fixed; top: 0; left: 0; z-index: -1; }
 
-/* General Button Reset */
-button {
-    font-family: 'Orbitron', sans-serif;
-    text-transform: uppercase;
-    transition: all 0.2s ease;
-    cursor: pointer;
+/* CENTERED LOGIN */
+.login {
+    position: fixed; inset: 0; z-index: 10000; background: #000;
+    display: flex; justify-content: center; align-items: center;
+}
+.login.hidden { display: none !important; }
+
+.login-circle {
+    width: 320px; height: 320px; border-radius: 50%; border: 2px solid var(--neon-cyan);
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    gap: 25px; box-shadow: 0 0 40px rgba(0, 242, 255, 0.2); background: rgba(255,255,255,0.02);
+    text-align: center;
 }
 
-/* Start Focus Button - Neon Green */
-.start {
-    background: transparent !important;
-    border: 2px solid var(--neon-green) !important;
-    color: var(--neon-green) !important;
-    box-shadow: 0 0 15px var(--neon-green), inset 0 0 5px var(--neon-green);
-    text-shadow: 0 0 5px var(--neon-green);
+.neon-text { font-family: 'Orbitron'; color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan); }
+
+#usernameInput {
+    width: 220px; padding: 12px; border-radius: 25px; border: 2px solid var(--neon-cyan);
+    background: rgba(0, 0, 0, 0.6); color: var(--neon-cyan); text-align: center;
+    font-family: 'Orbitron'; outline: none; box-shadow: 0 0 10px rgba(0, 242, 255, 0.2);
 }
 
-/* Pause Button - Neon Orange/Amber */
-.pause {
-    background: transparent !important;
-    border: 2px solid #f59e0b !important;
-    color: #f59e0b !important;
-    box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+/* APP HUD CENTERED */
+.container {
+    width: 100%; max-width: 450px; height: 100%;
+    display: flex; flex-direction: column;
 }
 
-/* Reset Button - Neon Red */
-.reset {
-    background: transparent !important;
-    border: 2px solid var(--neon-red) !important;
-    color: var(--neon-red) !important;
-    box-shadow: 0 0 15px var(--neon-red);
+.glass-header {
+    padding: 20px; display: flex; justify-content: space-between; align-items: center;
+    background: rgba(255,255,255,0.05); backdrop-filter: blur(10px);
 }
 
-/* Login & Action Buttons - Neon Cyan */
-.neon-btn, .icon-btn {
-    background: transparent !important;
-    border: 2px solid var(--neon-cyan) !important;
-    color: var(--neon-cyan) !important;
-    box-shadow: 0 0 15px var(--neon-cyan);
+.main-content {
+    flex: 1; overflow-y: auto; padding: 20px;
+    display: flex; flex-direction: column;
+    justify-content: center; /* Vertical Center */
+    gap: 25px;
 }
 
-/* THE BOSS BUTTON - Legendary Neon White */
-.boss-trigger {
-    width: 100%;
-    padding: 18px;
-    background: #fff !important; /* Keep it white core */
-    color: #000 !important;
-    font-weight: 900;
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 0 25px var(--neon-white), 0 0 50px rgba(255,255,255,0.3);
-    animation: pulsar 2s infinite ease-in-out;
-}
-
-@keyframes pulsar {
-    0% { box-shadow: 0 0 20px var(--neon-white); transform: scale(1); }
-    50% { box-shadow: 0 0 40px var(--neon-white), 0 0 10px var(--neon-cyan); transform: scale(1.02); }
-    100% { box-shadow: 0 0 20px var(--neon-white); transform: scale(1); }
-}
-
-/* Shop Button - Neon Purple */
-.shop-btn {
-    width: 100%;
-    background: transparent !important;
-    border: 2px solid var(--neon-purple) !important;
-    color: var(--neon-purple) !important;
-    box-shadow: 0 0 15px var(--neon-purple);
-    padding: 15px;
-    border-radius: 15px;
-}
-
-/* --- GLASS UI ELEMENTS --- */
 .glass-card {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(15px);
-    border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.1);
-    padding: 20px;
+    background: rgba(255,255,255,0.03); backdrop-filter: blur(15px);
+    border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+    padding: 20px; text-align: center;
 }
 
-.xp-fill {
-    background: var(--neon-cyan);
-    box-shadow: 0 0 15px var(--neon-cyan);
-}
+/* CENTERED ENGINE & BUTTONS */
+.focus-engine { text-align: center; }
+#timer { font-family: 'Orbitron'; font-size: 80px; text-shadow: 0 0 20px var(--neon-cyan); margin-bottom: 10px; }
+
+.wheel-controls { display: flex; justify-content: center; align-items: center; gap: 30px; margin-bottom: 20px; }
+.time-setting { line-height: 1.2; }
+
+.action-grid { display: flex; gap: 10px; justify-content: center; }
+button { cursor: pointer; text-transform: uppercase; font-family: 'Orbitron'; transition: 0.2s; border: none; }
+
+.action-btn { padding: 12px 20px; border-radius: 12px; font-weight: bold; min-width: 90px; }
+.neon-btn { background: transparent; border: 2px solid var(--neon-cyan); color: var(--neon-cyan); padding: 10px 25px; border-radius: 25px; box-shadow: 0 0 15px var(--neon-cyan); }
+
+.start { border: 2px solid var(--neon-green); color: var(--neon-green); background: transparent; box-shadow: 0 0 15px var(--neon-green); }
+.pause { border: 2px solid #f59e0b; color: #f59e0b; background: transparent; }
+.reset { border: 2px solid var(--neon-red); color: var(--neon-red); background: transparent; }
+
+.boss-trigger { width: 100%; padding: 15px; background: #fff; color: #000; border-radius: 10px; box-shadow: 0 0 20px #fff; font-weight: 800; }
+.icon-btn { width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--neon-cyan); color: var(--neon-cyan); background: transparent; font-size: 20px; display: flex; justify-content: center; align-items: center; }
+
+/* BARS */
+.xp-bar-container, .hp-container { height: 10px; background: #111; border-radius: 5px; overflow: hidden; margin-top: 10px; }
+.xp-fill { height: 100%; width: 0%; background: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan); transition: 0.4s; }
+.hp-fill { height: 100%; width: 100%; background: var(--neon-red); box-shadow: 0 0 10px var(--neon-red); transition: 0.5s; }
+
+.stats-grid { display: flex; gap: 15px; }
+.stat-item { flex: 1; }
+
+.bottom-nav { padding: 20px; text-align: center; }
+.shop-btn { width: 100%; padding: 15px; border: 2px solid var(--neon-purple); color: var(--neon-purple); background: transparent; border-radius: 15px; box-shadow: 0 0 15px var(--neon-purple); }
+
+.modal { position: fixed; inset: 0; z-index: 11000; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; text-align: center; }
+.hidden { display: none; }
