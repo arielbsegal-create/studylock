@@ -5,99 +5,112 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>StudyLock | Focus RPG</title>
+    <title>StudyLock | Elite Focus RPG</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
+    <canvas id="particleCanvas"></canvas>
 
     <div id="loginScreen" class="login">
         <div class="login-circle">
-            <h1 class="login-title">StudyLock</h1>
-            <input type="text" id="usernameInput" placeholder="Username" autocomplete="off">
-            <button id="loginBtn">ENTER</button>
+            <h1 class="neon-text">StudyLock</h1>
+            <input type="text" id="usernameInput" placeholder="Enter Hero Name" autocomplete="off">
+            <button id="loginBtn" class="neon-btn">INITIALIZE</button>
         </div>
     </div>
 
     <div class="container">
-
-        <div class="top-section">
-            <h1>StudyLock</h1>
-            <div class="token-display">
-                <img src="https://cdn-icons-png.flaticon.com/512/10542/10542511.png" width="20" alt="token">
-                <span id="tokens">0</span> Tokens
+        <header class="glass-header">
+            <div class="user-info">
+                <h1 id="profileName">Hero</h1>
+                <div class="lvl-badge">LVL <span id="level">1</span></div>
             </div>
-        </div>
-
-        <div class="main-content">
-
-            <div class="profile-card">
-                <h2 id="profileName">Hero</h2>
-                <p>Level <span id="level">1</span></p>
-                <div class="xp-bar">
-                    <div id="xpFill"></div>
+            <div class="currency">
+                <div class="token-pill">
+                    <span id="tokens">0</span> <small>TKNS</small>
                 </div>
-                <div class="xp-text"><span id="xp">0</span> / <span id="xpNeeded">100</span> XP</div>
             </div>
+        </header>
 
-            <div class="timer-section">
-                <div class="timer-box">
-                    <h2 id="timer">25:00</h2>
+        <main class="main-content">
+            <section class="glass-card xp-section">
+                <div class="xp-header">
+                    <span>Experience Points</span>
+                    <span class="xp-text"><span id="xp">0</span> / <span id="xpNeeded">100</span></span>
+                </div>
+                <div class="xp-bar-container">
+                    <div id="xpFill" class="xp-fill"></div>
+                </div>
+            </section>
+
+            <section class="focus-engine">
+                <div class="timer-display">
+                    <h2 id="timer" class="glow-text">25:00</h2>
                 </div>
 
-                <div class="time-wheel">
-                    <button id="upBtn">▲</button>
-                    <div class="wheel-value">
-                        <span id="minutesDisplay">25</span>
-                        <span class="small">min</span>
+                <div class="wheel-controls">
+                    <button id="downBtn" class="icon-btn">−</button>
+                    <div class="time-setting">
+                        <span id="minutesDisplay">25</span><br>
+                        <small>MINUTES</small>
                     </div>
-                    <button id="downBtn">▼</button>
+                    <button id="upBtn" class="icon-btn">+</button>
                 </div>
 
-                <div class="buttons">
-                    <button id="startBtn">START</button>
-                    <button id="pauseBtn">PAUSE</button>
-                    <button id="resetBtn">RESET</button>
+                <div class="action-grid">
+                    <button id="startBtn" class="action-btn start">START FOCUS</button>
+                    <button id="pauseBtn" class="action-btn pause">PAUSE</button>
+                    <button id="resetBtn" class="action-btn reset">RESET</button>
                 </div>
-            </div>
+            </section>
 
-            <div class="stats">
-                <div class="card">
-                    <h3>Streak</h3>
+            <section class="glass-card battle-arena">
+                <div class="battle-header">
+                    <h3>BOSS: THE PROCRASTINATOR</h3>
+                    <div class="hp-container">
+                        <div id="bossHp" class="hp-fill"></div>
+                    </div>
+                </div>
+                <button id="battleBtn" class="boss-trigger">CHALLENGE BOSS</button>
+                <p id="battleStatus" class="status-msg">Gate is currently sealed...</p>
+            </section>
+
+            <div class="stats-grid">
+                <div class="glass-card stat-item">
+                    <small>CURRENT STREAK</small>
                     <p id="streak">1</p>
                 </div>
-                <div class="card">
-                    <h3>Badges</h3>
-                    <p id="badges">0</p>
+                <div class="glass-card stat-item">
+                    <small>WORLD RANK</small>
+                    <p id="userRank">#1</p>
                 </div>
             </div>
 
-            <div class="leaderboard">
-                <h3>Global Ranking</h3>
-                <ol id="leaderboardList"></ol>
-            </div>
+            <section class="glass-card leaderboard">
+                <h3>Global Standings</h3>
+                <div id="leaderboardList" class="rank-list">
+                    </div>
+            </section>
+        </main>
 
-            <div class="battle">
-                <h3>LEGENDARY BOSS</h3>
-                <button id="battleBtn" class="boss-btn">Commence Battle</button>
-                <p id="battleStatus">The gate is sealed...</p>
-            </div>
-
-        </div>
-
-        <div class="bottom-nav">
-            <button id="openShopBtn">Visit Shop</button>
-        </div>
-
+        <nav class="bottom-nav">
+            <button id="openShopBtn" class="shop-btn">ARMORY & SHOP</button>
+        </nav>
     </div>
 
-    <div id="shopPage" class="page hidden">
-        <h1>Item Shop</h1>
-        <div class="shop-item">
-            <p>Neon Theme Overlay</p>
-            <button id="buyThemeBtn">Unlock Neon (20 Tokens)</button>
+    <div id="shopPage" class="modal hidden">
+        <div class="modal-content glass-card">
+            <h2 class="neon-text">The Armory</h2>
+            <div class="shop-item">
+                <div class="item-info">
+                    <h4>Neon Pulsar HUD</h4>
+                    <p>Upgrade Visual Interface</p>
+                </div>
+                <button id="buyThemeBtn" class="buy-btn">20 TKNS</button>
+            </div>
+            <button id="backBtn" class="close-btn">BACK TO HUB</button>
         </div>
-        <button id="backBtn">Return to Hub</button>
     </div>
 
     <script src="script.js"></script>

@@ -1,88 +1,119 @@
-let username = localStorage.getItem("lastUser") || "";
+// --- PARTICLE SYSTEM ---
+const canvas = document.getElementById('particleCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+let particles = [];
+class Particle {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2;
+        this.speedX = Math.random() * 0.5 - 0.25;
+        this.speedY = Math.random() * 0.5 - 0.25;
+    }
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x > canvas.width) this.x = 0;
+        if (this.x < 0) this.x = canvas.width;
+        if (this.y > canvas.height) this.y = 0;
+        if (this.y < 0) this.y = canvas.height;
+    }
+    draw() {
+        ctx.fillStyle = 'rgba(0, 242, 255, 0.5)';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+for (let i = 0; i < 60; i++) {
+    particles.push(new Particle());
+}
+
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animate);
+}
+animate();
+
+// --- CORE APP LOGIC ---
 let xp = 0, tokens = 0, level = 1, xpNeeded = 100;
 let minutes = 25, totalSeconds = 1500, timer = null, running = false;
-let unlockedThemes = ["default"], activeTheme = "default", battleActive = false, battleWins = 0;
-
-const bots = [{name: "ProFocus", xp: 1500}, {name: "StudyMage", xp: 900}];
+let battleActive = false, bossHp = 3;
 
 function updateUI() {
-    document.getElementById("xp").textContent = xp;
-    document.getElementById("xpNeeded").textContent = xpNeeded;
-    document.getElementById("level").textContent = level;
-    document.getElementById("tokens").textContent = tokens;
-    document.getElementById("xpFill").style.width = (xp / xpNeeded) * 100 + "%";
-
-    let players = [...bots, {name: "You", xp: xp + (level * 1000)}].sort((a,b) => b.xp - a.xp);
-    document.getElementById("leaderboardList").innerHTML = players.map((p, i) => `<li>${i+1}. ${p.name}: ${p.xp}</li>`).join('');
+    // Safety checks to prevent crashes if elements are missing
+    if(document.getElementById("xp")) document.getElementById("xp").textContent = xp;
+    if(document.getElementById("xpNeeded")) document.getElementById("xpNeeded").textContent = xpNeeded;
+    if(document.getElementById("level")) document.getElementById("level").textContent = level;
+    if(document.getElementById("tokens")) document.getElementById("tokens").textContent = tokens;
+    if(document.getElementById("xpFill")) document.getElementById("xpFill").style.width = `${(xp/xpNeeded)*100}%`;
+    if(document.getElementById("bossHp")) document.getElementById("bossHp").style.width = `${(bossHp/3)*100}%`;
 }
 
-function saveData() {
-    if (!username) return;
-    localStorage.setItem(username, JSON.stringify({xp, tokens, level, unlockedThemes, activeTheme}));
-    localStorage.setItem("lastUser", username);
+// Login Setup
+const loginBtn = document.getElementById("loginBtn");
+const loginScreen = document.getElementById("loginScreen");
+
+if(loginBtn) {
+    loginBtn.onclick = () => {
+        const userInput = document.getElementById("usernameInput").value;
+        if(userInput) {
+            document.getElementById("profileName").textContent = userInput;
+            loginScreen.style.display = "none";
+            updateUI();
+        } else {
+            alert("Enter a Hero Name to begin!");
+        }
+    };
 }
 
-function loadData() {
-    const saved = JSON.parse(localStorage.getItem(username));
-    if (saved) {
-        xp = saved.xp || 0; tokens = saved.tokens || 0; level = saved.level || 1;
-        unlockedThemes = saved.unlockedThemes || ["default"]; activeTheme = saved.activeTheme || "default";
-        document.body.style.background = activeTheme === "neon" ? "linear-gradient(135deg,#ff00cc,#3333ff)" : "#0f172a";
-    }
-    updateUI();
-}
+// Timer Logic
+const startBtn = document.getElementById("startBtn");
+const timerDisplay = document.getElementById("timer");
 
-function updateTimerDisplay() {
-    let m = Math.floor(totalSeconds / 60), s = totalSeconds % 60;
-    document.getElementById("timer").textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
+if(startBtn) {
+    startBtn.onclick = () => {
+        if (running) return;
+        running = true;
+        timer = setInterval(() => {
+            totalSeconds--;
+            let m = Math.floor(totalSeconds/60);
+            let s = totalSeconds%60;
+            timerDisplay.textContent = `${m}:${s<10?'0':''}${s}`;
+
+            if(totalSeconds <= 0) {
+                clearInterval(timer);
+                handleFinish();
+            }
+        }, 1000);
+    };
 }
 
 function handleFinish() {
-    let gainXP = 50 + (minutes * 2), gainTokens = Math.floor(minutes / 5);
-    if (battleActive) {
-        battleWins++;
-        document.getElementById("battleStatus").textContent = `BOSS HP: ${3-battleWins}/3`;
-        if (battleWins >= 3) { gainXP += 200; gainTokens += 10; battleActive = false; document.getElementById("battleStatus").textContent = "BOSS DEFEATED!"; }
-    }
-    xp += gainXP; tokens += gainTokens;
-    while(xp >= xpNeeded) { xp -= xpNeeded; level++; xpNeeded = Math.floor(xpNeeded * 1.3); }
-    totalSeconds = minutes * 60; running = false;
-    updateUI(); saveData(); updateTimerDisplay();
+    xp += 50; tokens += 5;
+    if(battleActive) bossHp--;
+    // Level up logic
+    if(xp >= xpNeeded) { xp = 0; level++; xpNeeded *= 1.5; }
+    running = false;
+    totalSeconds = minutes * 60;
+    updateUI();
 }
 
-document.getElementById("loginBtn").onclick = () => {
-    username = document.getElementById("usernameInput").value;
-    if (!username) return;
-    document.getElementById("profileName").textContent = username;
-    document.getElementById("loginScreen").classList.add("hidden");
-    loadData();
-};
-
-document.getElementById("startBtn").onclick = () => {
-    if (running) return;
-    running = true;
-    timer = setInterval(() => {
-        totalSeconds--; updateTimerDisplay();
-        if (totalSeconds <= 0) { clearInterval(timer); handleFinish(); }
-    }, 1000);
-};
-
-document.getElementById("pauseBtn").onclick = () => { clearInterval(timer); running = false; };
-document.getElementById("resetBtn").onclick = () => { clearInterval(timer); running = false; totalSeconds = minutes * 60; updateTimerDisplay(); };
-document.getElementById("upBtn").onclick = () => { minutes++; totalSeconds = minutes * 60; document.getElementById("minutesDisplay").textContent = minutes; updateTimerDisplay(); };
-document.getElementById("downBtn").onclick = () => { if(minutes > 1) minutes--; totalSeconds = minutes * 60; document.getElementById("minutesDisplay").textContent = minutes; updateTimerDisplay(); };
-document.getElementById("battleBtn").onclick = () => { battleActive = true; battleWins = 0; document.getElementById("battleStatus").textContent = "BATTLE ON! DO 3 SESSIONS"; };
+// Basic Button Hooks
+document.getElementById("upBtn").onclick = () => { minutes++; totalSeconds = minutes*60; document.getElementById("minutesDisplay").textContent = minutes; timerDisplay.textContent = `${minutes}:00`; };
+document.getElementById("downBtn").onclick = () => { if(minutes > 1) minutes--; totalSeconds = minutes*60; document.getElementById("minutesDisplay").textContent = minutes; timerDisplay.textContent = `${minutes}:00`; };
 document.getElementById("openShopBtn").onclick = () => document.getElementById("shopPage").classList.remove("hidden");
 document.getElementById("backBtn").onclick = () => document.getElementById("shopPage").classList.add("hidden");
+document.getElementById("battleBtn").onclick = () => { battleActive = true; document.getElementById("battleStatus").textContent = "BATTLE ACTIVE!"; };
 
-document.getElementById("buyThemeBtn").onclick = () => {
-    if (unlockedThemes.includes("neon")) {
-        activeTheme = activeTheme === "neon" ? "default" : "neon";
-    } else if (tokens >= 20) {
-        tokens -= 20; unlockedThemes.push("neon"); activeTheme = "neon";
-    }
-    document.body.style.background = activeTheme === "neon" ? "linear-gradient(135deg,#ff00cc,#3333ff)" : "#0f172a";
-    updateUI(); saveData();
-};
-
-updateTimerDisplay();
+updateUI();
