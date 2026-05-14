@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>StudyLock | Focus RPG</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+    <div id="loginScreen" class="login">
+        <div class="login-circle">
+            <h1 class="login-title">StudyLock</h1>
+            <input type="text" id="usernameInput" placeholder="Username" autocomplete="off">
+            <button id="loginBtn">ENTER</button>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <div class="top-section">
+            <h1>StudyLock</h1>
+            <div class="token-display">
+                <img src="https://cdn-icons-png.flaticon.com/512/10542/10542511.png" width="20" alt="token">
+                <span id="tokens">0</span> Tokens
+            </div>
+        </div>
+
+        <div class="main-content">
+
+            <div class="profile-card">
+                <h2 id="profileName">Hero</h2>
+                <p>Level <span id="level">1</span></p>
+                <div class="xp-bar">
+                    <div id="xpFill"></div>
+                </div>
+                <div class="xp-text"><span id="xp">0</span> / <span id="xpNeeded">100</span> XP</div>
+            </div>
+
+            <div class="timer-section">
+                <div class="timer-box">
+                    <h2 id="timer">25:00</h2>
+                </div>
+
+                <div class="time-wheel">
+                    <button id="upBtn">▲</button>
+                    <div class="wheel-value">
+                        <span id="minutesDisplay">25</span>
+                        <span class="small">min</span>
+                    </div>
+                    <button id="downBtn">▼</button>
+                </div>
+
+                <div class="buttons">
+                    <button id="startBtn">START</button>
+                    <button id="pauseBtn">PAUSE</button>
+                    <button id="resetBtn">RESET</button>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="card">
+                    <h3>Streak</h3>
+                    <p id="streak">1</p>
+                </div>
+                <div class="card">
+                    <h3>Badges</h3>
+                    <p id="badges">0</p>
+                </div>
+            </div>
+
+            <div class="leaderboard">
+                <h3>Global Ranking</h3>
+                <ol id="leaderboardList"></ol>
+            </div>
+
+            <div class="battle">
+                <h3>LEGENDARY BOSS</h3>
+                <button id="battleBtn" class="boss-btn">Commence Battle</button>
+                <p id="battleStatus">The gate is sealed...</p>
+            </div>
+
+        </div>
+
+        <div class="bottom-nav">
+            <button id="openShopBtn">Visit Shop</button>
+        </div>
+
+    </div>
+
+    <div id="shopPage" class="page hidden">
+        <h1>Item Shop</h1>
+        <div class="shop-item">
+            <p>Neon Theme Overlay</p>
+            <button id="buyThemeBtn">Unlock Neon (20 Tokens)</button>
+        </div>
+        <button id="backBtn">Return to Hub</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
