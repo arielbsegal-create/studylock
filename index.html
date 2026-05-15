@@ -3,30 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>StudyLock | Elite Focus RPG</title>
+    <title>StudyLock | Aether Chronos RPG</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
     <canvas id="particleCanvas"></canvas>
 
+    <div id="rewardPopup" class="modal reward hidden">
+        <div class="reward-card shimmer-fast">
+            <h1 id="rewardTitle" class="neon-text-gold title-font">LEVEL UP!</h1>
+            <div id="lootIcon" class="loot-display">💎</div>
+            <p id="rewardMessage">You gained +20 Tokens</p>
+            <button class="neon-btn claim-btn" onclick="closeReward()">CLAIM LOOT</button>
+        </div>
+    </div>
+
     <div id="loginScreen" class="login">
-        <div class="login-circle">
-            <h1 class="neon-text">StudyLock</h1>
-            <input type="text" id="usernameInput" placeholder="Enter Hero Name" autocomplete="off">
-            <button id="loginBtn" class="neon-btn">INITIALIZE</button>
+        <div class="login-circle shimmer">
+            <h1 class="neon-text title-font">STUDYLOCK</h1>
+            <p class="subtitle">Aether Chronos System</p>
+            <input type="text" id="usernameInput" placeholder="REGISTER HERO NAME" autocomplete="off">
+            <button id="loginBtn" class="neon-btn cyan-glow">INITIALIZE CORE</button>
         </div>
     </div>
 
     <div class="container">
         <header class="glass-header">
-            <div class="user-info">
-                <h1 id="profileName">Hero</h1>
-                <div class="lvl-badge">LVL <span id="level">1</span></div>
+            <div class="hud-left">
+                <div class="user-id">
+                    <span id="profileName" class="title-font">HERO</span>
+                    <div class="lvl-badge">LVL <span id="level">1</span></div>
+                </div>
+                <div class="bar-group">
+                    <div class="mini-bar mana"><div id="manaFill"></div></div>
+                    <small>MP</small>
+                </div>
             </div>
-            <div class="currency">
+            <div class="hud-right">
                 <div class="token-pill">
                     <span id="tokens">0</span> <small>TKNS</small>
                 </div>
@@ -34,73 +48,112 @@
         </header>
 
         <main class="main-content">
-            <section class="glass-card xp-section">
-                <div class="xp-header">
-                    <span>Experience</span>
-                    <span class="xp-text"><span id="xp">0</span> / <span id="xpNeeded">100</span></span>
-                </div>
-                <div class="xp-bar-container">
-                    <div id="xpFill" class="xp-fill"></div>
-                </div>
-            </section>
 
-            <section class="focus-engine">
-                <div class="timer-display">
-                    <h2 id="timer" class="glow-text">25:00</h2>
+            <section class="reactor-section glass-card">
+                <div class="timer-container core-glow">
+                    <svg class="timer-svg" viewBox="0 0 100 100">
+                        <circle class="timer-bg" cx="50" cy="50" r="45"></circle>
+                        <circle id="timerPath" class="timer-path" cx="50" cy="50" r="45"></circle>
+                    </svg>
+                    <h2 id="timer" class="title-font">25:00</h2>
+                    <div id="hpDisplay" class="hp-pips">❤️❤️❤️</div>
                 </div>
 
                 <div class="wheel-controls">
-                    <button id="downBtn" class="icon-btn">−</button>
-                    <div class="time-setting">
-                        <span id="minutesDisplay">25</span><br>
-                        <small>MINUTES</small>
-                    </div>
-                    <button id="upBtn" class="icon-btn">+</button>
+                    <button id="downBtn" class="neon-btn icon-btn cyan-glow">−</button>
+                    <div class="current-set title-font"><span id="minutesDisplay">25</span><br><small>MINS</small></div>
+                    <button id="upBtn" class="neon-btn icon-btn cyan-glow">+</button>
                 </div>
 
-                <div class="action-grid">
-                    <button id="startBtn" class="action-btn start">START FOCUS</button>
-                    <button id="pauseBtn" class="action-btn pause">PAUSE</button>
-                    <button id="resetBtn" class="action-btn reset">RESET</button>
+                <div class="reactor-actions">
+                    <button id="startBtn" class="neon-btn start-glow">INITIATE FOCUS</button>
+                    <button id="pauseBtn" class="neon-btn pause-glow hidden">FREEZE</button>
                 </div>
             </section>
 
-            <section class="glass-card battle-arena">
-                <div class="battle-header">
-                    <h3>BOSS: THE PROCRASTINATOR</h3>
-                    <div class="hp-container">
-                        <div id="bossHp" class="hp-fill"></div>
+            <div class="side-panel">
+                <div class="glass-card xp-section">
+                    <div class="xp-header">
+                        <span class="title-font">Aether Progress</span>
+                        <span class="xp-text"><span id="xp">0</span> / <span id="xpNeeded">100</span> XP</span>
+                    </div>
+                    <div class="xp-bar-container">
+                        <div id="xpFill" class="xp-fill"></div>
                     </div>
                 </div>
-                <button id="battleBtn" class="boss-trigger">CHALLENGE BOSS</button>
-                <p id="battleStatus" class="status-msg">Gate is currently sealed...</p>
-            </section>
 
-            <div class="stats-grid">
-                <div class="glass-card stat-item">
-                    <small>STREAK</small>
-                    <p id="streak">1</p>
-                </div>
-                <div class="glass-card stat-item">
-                    <small>RANK</small>
-                    <p id="userRank">#1</p>
-                </div>
+                <section class="glass-card abilities-section">
+                    <h3 class="title-font">FOCUS ABILITIES</h3>
+                    <div class="ability-grid">
+                        <button class="neon-btn buff-glow" onclick="useAbility('surge')">
+                            <span class="cost">10 MP</span> Scholar Surge
+                        </button>
+                        <button class="neon-btn attack-glow" onclick="useAbility('smite')">
+                            <span class="cost">30 MP</span> Chronos Smite
+                        </button>
+                    </div>
+                </section>
+
+                <section class="glass-card battle-arena boss-inactive" id="bossCard">
+                    <div class="battle-header">
+                        <div class="boss-title">
+                            <span class="difficulty">RAID BOSS</span>
+                            <h3 id="bossName" class="title-font">PROCRASTINATOR CRAB</h3>
+                        </div>
+                    </div>
+                    <div class="boss-visual">
+                        <span class="boss-icon">🦀</span>
+                        <div class="hp-container">
+                            <div id="bossHp" class="hp-fill"></div>
+                        </div>
+                    </div>
+                    <button id="battleBtn" class="neon-btn red-glow boss-btn">ENGAGE BOSS</button>
+                </section>
             </div>
         </main>
 
         <nav class="bottom-nav">
-            <button id="openShopBtn" class="shop-btn">ARMORY & SHOP</button>
+            <button id="openShopBtn" class="neon-btn purple-glow shop-btn">OPEN ARMORY</button>
         </nav>
     </div>
 
     <div id="shopPage" class="modal hidden">
-        <div class="modal-content glass-card">
-            <h2 class="neon-text">The Armory</h2>
-            <div class="shop-item">
-                <p>Neon Pulsar HUD</p>
-                <button id="buyThemeBtn" class="buy-btn">20 TKNS</button>
+        <div class="shop-modal-content">
+            <h1 class="neon-text-purple title-font">THE ARMORY</h1>
+            <p style="color: #aaa;">Spend your Focus Tokens here to gain an edge.</p>
+
+            <div class="shop-grid">
+                <div class="shop-item">
+                    <div>
+                        <h4 class="title-font">Mana Battery</h4>
+                        <p>Instantly restores 50 MP. Used for spamming abilities.</p>
+                    </div>
+                    <button class="neon-btn purple-glow" onclick="alert('Not enough tokens!')">10 TKNS</button>
+                </div>
+                <div class="shop-item">
+                    <div>
+                        <h4 class="title-font">Shield Generator</h4>
+                        <p>Restores 1 Core HP if you took damage from tabbing out.</p>
+                    </div>
+                    <button class="neon-btn purple-glow" onclick="alert('Not enough tokens!')">25 TKNS</button>
+                </div>
+                <div class="shop-item">
+                    <div>
+                        <h4 class="title-font">Chronos Scroll</h4>
+                        <p>Permanently skips 1 minute of every focus session.</p>
+                    </div>
+                    <button class="neon-btn purple-glow" onclick="alert('Not enough tokens!')">100 TKNS</button>
+                </div>
+                <div class="shop-item">
+                    <div>
+                        <h4 class="title-font">Crimson Blade</h4>
+                        <p>Deal double damage to Bosses for 24 hours.</p>
+                    </div>
+                    <button class="neon-btn purple-glow" onclick="alert('Not enough tokens!')">150 TKNS</button>
+                </div>
             </div>
-            <button id="backBtn" class="close-btn">BACK</button>
+
+            <button id="backBtn" class="neon-btn purple-glow close-btn" style="margin-top: auto;">RETURN TO HUB</button>
         </div>
     </div>
 
