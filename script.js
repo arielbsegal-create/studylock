@@ -91,42 +91,165 @@ function useAbility(type) {
     }
     updateHUD();
 }
+// --- NEW INVENTORY STATE ---
+let inventory = {
+    shields: 0,
+    manaBatteries: 0
+};
+
+// --- PURCHASE FUNCTION ---
+function buyItem(item) {
+    if (item === 'battery') {
+        if (state.tokens >= 10) {
+            state.tokens -= 10;
+            inventory.manaBatteries++;
+            alert("🔋 MANA BATTERY PURCHASED! (Check Focus Abilities)");
+        } else {
+            alert("❌ NOT ENOUGH TOKENS!");
+        }
+    }
+    else if (item === 'shield') {
+        if (state.tokens >= 25) {
+            state.tokens -= 25;
+            inventory.shields++;
+            alert("🛡️ SHIELD GENERATOR ONLINE! (Auto-restores 1 HP if hit)");
+        } else {
+            alert("❌ NOT ENOUGH TOKENS!");
+        }
+    }
+    updateHUD();
+}
+
+// --- UPDATED HP CHECK (Auto-Shield) ---
+// This replaces the old punishment check to include the shield logic
+function checkCoreIntegrity() {
+    if (document.hidden && running) {
+        if (inventory.shields > 0) {
+            inventory.shields--;
+            alert("🛡️ SHIELD TRIGGERED! Your generator absorbed the distraction penalty.");
+        } else {
+            state.hp--;
+            state.xp = Math.max(0, state.xp - 50);
+            alert("⚠️ CORE BREACH! -1 HP. Buy Shields in the Armory to prevent this!");
+        }
+
+        if (state.hp <= 0) {
+            failSession();
+        }
+        updateHUD();
+    }
+}
+
+// Ensure the shop buttons in your HTML call buyItem('battery') or buyItem('shield')
+// --- NEW: CALM CHIME SOUND GENERATOR ---
+function playFinishSound() {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = 'sine'; // Smooth, calm wave
+    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5 note
+    osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.5); // E5 note
+
+    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + 2);
+}
+
+// --- NEW: CONFETTI GENERATOR ---
+function triggerConfetti() {
+    const container = document.getElementById('confetti-container');
+    const colors = ['#00f2ff', '#39ff14', '#bc13fe', '#ffd700', '#ff3131'];
+
+    for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+
+        // Randomize appearance
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.width = Math.random() * 10 + 5 + 'px';
+        confetti.style.height = confetti.style.width;
+
+        // Randomize animation
+        const duration = Math.random() * 3 + 2;
+        confetti.style.animationDuration = duration + 's';
+        confetti.style.opacity = Math.random();
+
+        container.appendChild(confetti);
+
+        // Cleanup memory
+        setTimeout(() => confetti.remove(), duration * 1000);
+    }
+}
 
 function handleFinish() {
-    running = false; totalSeconds = minutes * 60; setCircleProgress(1);
+    running = false;
+    totalSeconds = minutes * 60;
+    setCircleProgress(1);
 
-    // Reset Buttons
+    playFinishSound();
+    triggerConfetti();
+
     document.getElementById("pauseBtn").classList.add("hidden");
     document.getElementById("startBtn").classList.remove("hidden");
     document.getElementById("startBtn").textContent = "INITIATE FOCUS";
 
-    document.body.classList.add("shake-event");
-    setTimeout(() => document.body.classList.remove("shake-event"), 300);
+    // --- BOOSTED TOKEN CALCULATION ---
+    let baseXP = 50 + (minutes * 2); // Increased XP gain
 
-    let baseXP = 50 + (minutes * 1.5);
-    let baseTokens = Math.floor(minutes / 5);
-    let manaGained = 20 + Math.floor(minutes / 10);
+    // Tokens now scale: (1 token per 5 mins) + (Level Bonus)
+    // Example: 25 mins at LVL 5 = 5 tokens + 5 bonus = 10 tokens!
+    let baseTokens = Math.floor(minutes / 5) + (state.level - 1);
 
-    if(activeBuffs.surge) baseXP *= 1.2; activeBuffs.surge = false;
-    if(battleState.active) { battleState.bossHp -= 34; checkBossStatus(); }
+    let manaGained = 25 + Math.floor(minutes / 5); // Faster mana regen
+
+    if(activeBuffs.surge) baseXP *= 1.5; // Buffed surge to 50%
+    activeBuffs.surge = false;
+
+    if(battleState.active) {
+        battleState.bossHp -= 50; // You now hit the boss harder
+        checkBossStatus();
+    }
 
     state.mana = Math.min(state.maxMana, state.mana + manaGained);
-    state.xp += baseXP; state.tokens += baseTokens;
+    state.xp += baseXP;
+    state.tokens += baseTokens;
 
     while(state.xp >= state.xpNeeded) {
-        state.xp -= state.xpNeeded; state.level++; state.xpNeeded = Math.floor(state.xpNeeded * 1.4);
+        state.xp -= state.xpNeeded;
+        state.level++;
+        state.xpNeeded = Math.floor(state.xpNeeded * 1.3); // Slower difficulty curve
         levelUpLoot();
     }
     updateHUD();
+}
+
+// --- MASSIVE BOSS REWARDS ---
+function bossVictoryLoot() {
+    // Defeating a boss now gives a huge payout
+    let bossReward = 100 + (state.level * 10);
+    state.tokens += bossReward;
+    showReward("BOSS DEFEATED!", "💎", `You crushed ${battleState.currentBoss}! Gained ${bossReward} Tokens.`);
+}
+
+function levelUpLoot() {
+    // Leveling up now gives more tokens
+    let lvlReward = 20 + state.level;
+    state.tokens += lvlReward;
+    showReward("LEVEL UP!", "🏆", `You reached LVL ${state.level}! Gained ${lvlReward} Tokens.`);
 }
 
 function checkBossStatus() {
     if(battleState.bossHp <= 0) { battleState.active = false; battleState.bossHp = 100; bossVictoryLoot(); }
 }
 
-function levelUpLoot() {
-    state.tokens += 10; showReward("LEVEL UP!", "🏆", `You reached LVL ${state.level}! Gained 10 Tokens.`);
-}
+
 function bossVictoryLoot() {
     state.tokens += 50; showReward("BOSS DEFEATED!", "💎", `You crushed ${battleState.currentBoss}! Gained 50 Tokens.`);
 }
@@ -183,5 +306,29 @@ document.getElementById("downBtn").onclick = () => { if(running)return; if(minut
 document.getElementById("battleBtn").onclick = () => { battleState.active = true; battleState.bossHp = 100; alert("BATTLE ENGAGED! Focus core to damage Boss."); updateHUD(); };
 document.getElementById("openShopBtn").onclick = () => document.getElementById("shopPage").classList.remove("hidden");
 document.getElementById("backBtn").onclick = () => document.getElementById("shopPage").classList.add("hidden");
+// --- SHOP LOGIC ---
+function toggleShop(show) {
+    const shop = document.getElementById('shopPage');
+    if (show) {
+        shop.classList.remove('hidden');
+    } else {
+        shop.classList.add('hidden');
+    }
+}
 
+// --- ITEM LOGIC ---
+function buyItem(item) {
+    if (item === 'battery' && state.tokens >= 10) {
+        state.tokens -= 10;
+        state.mana = Math.min(state.maxMana, state.mana + 50);
+        alert("🔋 Mana Restored!");
+    } else if (item === 'shield' && state.tokens >= 25) {
+        state.tokens -= 25;
+        inventory.shields++;
+        alert("🛡️ Shield Equipped!");
+    } else {
+        alert("❌ Not enough tokens!");
+    }
+    updateHUD();
+}
 updateHUD();
